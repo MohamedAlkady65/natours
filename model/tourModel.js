@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const slugify = require("slugify");
 const validator = require("validator");
+const User = require("./usermodel");
 
 const tourSchema = new mongoose.Schema(
 	{
@@ -81,6 +82,35 @@ const tourSchema = new mongoose.Schema(
 			type: Boolean,
 			default: false,
 		},
+		startLocation: {
+			type: {
+				type: String,
+				default: "Point",
+				emun: ["Point"],
+			},
+			coordinates: [Number],
+			description: String,
+			address: String,
+		},
+		locations: [
+			{
+				type: {
+					type: String,
+					default: "Point",
+					emun: ["Point"],
+				},
+				coordinates: [Number],
+				description: String,
+				address: String,
+				day: Date,
+			},
+		],
+		guides: [
+			{
+				type: mongoose.Schema.ObjectId,
+				ref: "User",
+			},
+		],
 	},
 	{
 		toJSON: { virtuals: true },
@@ -92,11 +122,27 @@ tourSchema.virtual("durationWeek").get(function () {
 	return Math.ceil(this.duration / 7);
 });
 
+tourSchema.virtual("reviews", {
+	ref: "Review",
+	foreignField: "tour",
+	localField: "_id",
+});
+
 // Document Middleware
 tourSchema.pre("save", function (next) {
 	this.slug = slugify(this.name);
 	next();
 });
+
+// tourSchema.pre("save", async function (next) {
+// 	const guidesPromises = this.guides.map(
+// 		async (id) => await User.findById(id)
+// 	);
+// 	this.guides = await Promise.all(guidesPromises);
+
+// 	next();
+// });
+
 // tourSchema.post("save", function (doc, next) {
 // 	console.log(doc);
 // 	next();
@@ -104,6 +150,14 @@ tourSchema.pre("save", function (next) {
 
 tourSchema.pre(/^find/, function (next) {
 	this.find({ secret: { $ne: true } });
+	next();
+});
+
+tourSchema.pre(/^find/, function (next) {
+	this.populate({
+		path: "guides",
+		select: "-__v",
+	});
 	next();
 });
 

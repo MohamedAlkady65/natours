@@ -97,7 +97,7 @@ exports.protectRoute = catchAsync(async (req, res, next) => {
 
 exports.restrictTo = (...roles) =>
 	catchAsync(async (req, res, next) => {
-		if (!["admin", "lead-guide"].includes(req.user.role)) {
+		if (!roles.includes(req.user.role)) {
 			return next(
 				new AppError("Forbidden, You have not permission", 403)
 			);

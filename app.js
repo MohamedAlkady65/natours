@@ -1,9 +1,11 @@
 const express = require("express");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
-
+const dotenv = require("dotenv");
+dotenv.config({ path: "./config.env" });
 const toursRouter = require("./routes/toursRouter");
 const usersRouter = require("./routes/usersRouter");
+const reviewsRouter = require("./routes/reviewsRouter");
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controller/errorController");
 
@@ -12,6 +14,8 @@ const app = express();
 if (process.env.ENV == "development") {
 	app.use(morgan("dev"));
 }
+
+console.log(process.env.DATABASE);
 
 const connectionString = process.env.DATABASE.replace(
 	"<PASSWORD>",
@@ -40,6 +44,7 @@ app.use(express.json());
 // });
 app.use("/api/v1/tours", toursRouter);
 app.use("/api/v1/users", usersRouter);
+app.use("/api/v1/reviews", reviewsRouter);
 
 app.all("*", (req, res, next) => {
 	next(new AppError(`Route ${req.originalUrl} not found`, 404));

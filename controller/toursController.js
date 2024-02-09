@@ -10,8 +10,6 @@ exports.top5Tours = (req, res, next) => {
 };
 
 exports.getAllTours = catchAsync(async (req, res, next) => {
-
-	
 	const features = new APIFeatures(Tour.find(), req.query)
 		.filter()
 		.fields()
@@ -28,7 +26,7 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 });
 
 exports.getOneTour = catchAsync(async (req, res, next) => {
-	const tour = await Tour.findById(req.params.id);
+	const tour = await Tour.findById(req.params.id).populate("reviews");
 	// const tour = await Tour.findOne({_id:req.params.id});
 
 	if (!tour) {
