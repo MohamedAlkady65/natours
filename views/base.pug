@@ -1,0 +1,37 @@
+doctype html
+html
+    head 
+        //- interoplation
+        title Natours | #{title}
+        
+        link(rel='stylesheet' type='text/css' href='css/style.css')
+        link(rel='shortcut icon' type='image/png' href='img/favicon.png')
+    body 
+
+    include _header
+
+    block content
+
+    include _footer
+
+
+
+
+
+
+
+
+
+
+
+
+        //- //-what after = called buffered code could write js code
+        //- //-pug variables called locals
+        //- h2= tour.toUpperCase()
+
+        //- Unbuffered code
+        //- - const x= 5
+
+        //- p= x*2
+
+        //- p paraghraph

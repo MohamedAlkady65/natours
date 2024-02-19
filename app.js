@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require("express");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
@@ -6,6 +7,7 @@ dotenv.config({ path: "./config.env" });
 const toursRouter = require("./routes/toursRouter");
 const usersRouter = require("./routes/usersRouter");
 const reviewsRouter = require("./routes/reviewsRouter");
+const viewsRouter = require("./routes/viewsRouter");
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controller/errorController");
 
@@ -31,7 +33,11 @@ mongoose
 	.then((val) => console.log("Connected Successfully"))
 	.catch((err) => console.log("Faild to Connect"));
 
+app.set("view engine", "pug");
+app.set("views", path.join(__dirname, "/views"));
+
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
 
 // app.use((req, res, next) => {
 // 	console.log("Hello from middleware");
@@ -42,6 +48,10 @@ app.use(express.json());
 // 	req.requestedAt = new Date().toISOString();
 // 	next();
 // });
+
+
+
+app.use("/", viewsRouter);
 app.use("/api/v1/tours", toursRouter);
 app.use("/api/v1/users", usersRouter);
 app.use("/api/v1/reviews", reviewsRouter);
