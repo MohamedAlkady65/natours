@@ -1,8 +1,6 @@
-const AppError = require("../utils/appError.js");
 const catchAsync = require("../utils/catchAsync.js");
 const factory = require("../utils/factoryHandler.js");
 const Tour = require("./../model/tourModel.js");
-const APIFeatures = require("./../utils/apiFeatures.js");
 
 exports.top5Tours = (req, res, next) => {
 	req.query.sort = "-ratingsAverage,price";
@@ -10,61 +8,15 @@ exports.top5Tours = (req, res, next) => {
 	next();
 };
 
-exports.getAllTours = catchAsync(async (req, res, next) => {
-	const features = new APIFeatures(Tour.find(), req.query)
-		.filter()
-		.fields()
-		.sort()
-		.pagination();
+exports.getAllTours = factory.getAll(Tour);
 
-	const tours = await features.query;
+exports.getOneTour = factory.getOne(Tour, "reviews");
 
-	res.status(200).json({
-		status: "success",
-		result: tours.length,
-		tours,
-	});
-});
-
-exports.getOneTour = catchAsync(async (req, res, next) => {
-	const tour = await Tour.findById(req.params.id).populate("reviews");
-	// const tour = await Tour.findOne({_id:req.params.id});
-
-	if (!tour) {
-		return next(new AppError("Not found tour with this ID", 404));
-	}
-
-	res.status(200).json({
-		status: "success",
-		tour,
-	});
-});
-
-exports.createTour = catchAsync(async (req, res, next) => {
-	const tour = await Tour.create(req.body);
-
-	res.status(200).json({
-		status: "success",
-		data: tour,
-	});
-});
+exports.createTour = factory.create(Tour);
 
 exports.deleteTour = factory.delete(Tour);
 
-exports.updateTour = catchAsync(async (req, res, next) => {
-	const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-		new: true,
-		runValidators: true,
-	});
-	if (!tour) {
-		return next(new AppError("Not found tour with this ID", 404));
-	}
-
-	res.status(200).json({
-		status: "success",
-		tour,
-	});
-});
+exports.updateTour = factory.update(Tour);
 
 exports.toursStats = catchAsync(async (req, res, next) => {
 	stats = await Tour.aggregate([

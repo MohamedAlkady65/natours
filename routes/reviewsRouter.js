@@ -4,10 +4,11 @@ const authController = require("./../controller/authController");
 
 router
 	.route("/")
-	.get(reviewsController.getAllReviews)
+	.get(reviewsController.setTourId, reviewsController.getAllReviews)
 	.post(
 		authController.protectRoute,
 		authController.restrictTo("user"),
+		reviewsController.setUserTourIds,
 		reviewsController.addReview
 	);
 
