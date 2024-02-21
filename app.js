@@ -18,6 +18,8 @@ const viewsRouter = require("./routes/viewsRouter");
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controller/errorController");
 
+const app = express();
+
 const connectionString = process.env.DATABASE.replace(
 	"<PASSWORD>",
 	process.env.DATABASE_PASSWORD
@@ -30,8 +32,6 @@ mongoose
 	})
 	.then((val) => console.log("Connected Successfully"))
 	.catch((err) => console.log("Faild to Connect"));
-
-const app = express();
 
 // Set HTTP Security Headers
 app.use(helmet());

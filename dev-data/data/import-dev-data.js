@@ -1,6 +1,8 @@
 const fs = require("fs");
 const mongoose = require("mongoose");
 const Tour = require("./../../model/tourModel.js");
+const User = require("./../../model/usermodel.js");
+const Review = require("./../../model/reviewModel.js");
 
 const dotenv = require("dotenv");
 
@@ -20,13 +22,17 @@ mongoose
 	.then((val) => console.log("Connected Successfully"))
 	.catch((err) => console.log("Faild to Connect"));
 
-const tours = JSON.parse(
-	fs.readFileSync(`${__dirname}/tours.json`, "utf-8")
+const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, "utf-8"));
+const users = JSON.parse(fs.readFileSync(`${__dirname}/users.json`, "utf-8"));
+const reviews = JSON.parse(
+	fs.readFileSync(`${__dirname}/reviews.json`, "utf-8")
 );
 
 const importData = async () => {
 	try {
 		await Tour.create(tours);
+		await User.create(users, { validateBeforeSave: false });
+		await Review.create(reviews);
 		console.log("Data created successfully");
 	} catch (err) {
 		console.log("Error ", err);
@@ -36,6 +42,8 @@ const importData = async () => {
 const deleteData = async () => {
 	try {
 		await Tour.deleteMany();
+		await User.deleteMany();
+		await Review.deleteMany();
 		console.log("Data deleted successfully");
 	} catch (err) {
 		console.log("Error ", err);
@@ -51,7 +59,6 @@ const deleteData = async () => {
 
 if (process.argv.includes("--delete")) {
 	deleteData();
-}
-if (process.argv.includes("--import")) {
+} else if (process.argv.includes("--import")) {
 	importData();
 }

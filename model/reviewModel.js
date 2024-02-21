@@ -11,7 +11,7 @@ const reviewSchema = mongoose.Schema(
 			default: Date.now(),
 			select: false,
 		},
-		rate: {
+		rating: {
 			type: Number,
 			required: [true, "Rate is required"],
 			min: [0, "A tour rating must be between 0 and 5"],

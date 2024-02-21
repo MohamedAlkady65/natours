@@ -9,7 +9,7 @@ exports.setUserTourIds = catchAsync(async (req, res, next) => {
 });
 
 exports.setTourId = catchAsync(async (req, res, next) => {
-	req.filter = { tour: req.params.tourId };
+	req.filterObj = { tour: req.params.tourId };
 });
 
 exports.getAllReviews = factory.getAll(Reviews, {
