@@ -17,6 +17,8 @@ exports.getAllReviews = factory.getAll(Reviews, {
 	select: "name",
 });
 
+exports.getOne = factory.getOne(Reviews);
 exports.addReview = factory.create(Reviews);
 
 exports.deleteReview = factory.delete(Reviews);
+exports.updateReview = factory.update(Reviews);
