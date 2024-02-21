@@ -3,6 +3,8 @@ const express = require("express");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+const rateLimit = require("express-rate-limit");
+
 dotenv.config({ path: "./config.env" });
 const toursRouter = require("./routes/toursRouter");
 const usersRouter = require("./routes/usersRouter");
@@ -12,6 +14,14 @@ const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controller/errorController");
 
 const app = express();
+
+const limiter = rateLimit({
+	windowMs: 60 * 60 * 1000,
+	limit: 3,
+	legacyHeaders: false,
+});
+
+app.use("/api", limiter);
 
 if (process.env.ENV == "development") {
 	app.use(morgan("dev"));
@@ -49,8 +59,6 @@ app.use(express.static(path.join(__dirname, "public/img")));
 // 	req.requestedAt = new Date().toISOString();
 // 	next();
 // });
-
-
 
 app.use("/", viewsRouter);
 app.use("/api/v1/tours", toursRouter);
