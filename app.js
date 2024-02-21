@@ -1,4 +1,5 @@
 const path = require("path");
+
 const express = require("express");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
@@ -7,6 +8,7 @@ const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
+const hpp = require("hpp");
 
 dotenv.config({ path: "./config.env" });
 const toursRouter = require("./routes/toursRouter");
@@ -57,9 +59,22 @@ app.use(express.json({ limit: "50kb" }));
 // Mongo Sanitize
 app.use(mongoSanitize());
 
-
 // XSS Sanitize
 app.use(xss());
+
+// Prevent HTTP Parameter Pollution
+app.use(
+	hpp({
+		whitelist: [
+			"duration",
+			"ratingsQuantity",
+			"ratingsAverage",
+			"maxGroupSize",
+			"difficulty",
+			"price",
+		],
+	})
+);
 
 // Serve Static Files
 app.use(express.static(path.join(__dirname, "public")));
@@ -69,9 +84,6 @@ app.use("/api/v1/tours", toursRouter);
 app.use("/api/v1/users", usersRouter);
 app.use("/api/v1/reviews", reviewsRouter);
 
-app.all("/test", (req, res, next) => {
-	res.json({ body: req.body });
-});
 app.all("*", (req, res, next) => {
 	next(new AppError(`Route ${req.originalUrl} not found`, 404));
 });
