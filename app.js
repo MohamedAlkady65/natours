@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const rateLimit = require("express-rate-limit");
+const helmet = require("helmet");
 
 dotenv.config({ path: "./config.env" });
 const toursRouter = require("./routes/toursRouter");
@@ -13,27 +14,10 @@ const viewsRouter = require("./routes/viewsRouter");
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controller/errorController");
 
-const app = express();
-
-const limiter = rateLimit({
-	windowMs: 60 * 60 * 1000,
-	limit: 3,
-	legacyHeaders: false,
-});
-
-app.use("/api", limiter);
-
-if (process.env.ENV == "development") {
-	app.use(morgan("dev"));
-}
-
-console.log(process.env.DATABASE);
-
 const connectionString = process.env.DATABASE.replace(
 	"<PASSWORD>",
 	process.env.DATABASE_PASSWORD
 );
-
 mongoose
 	.connect(connectionString, {
 		useNewUrlParser: true,
@@ -43,22 +27,34 @@ mongoose
 	.then((val) => console.log("Connected Successfully"))
 	.catch((err) => console.log("Faild to Connect"));
 
+const app = express();
+
+// Set HTTP Security Headers
+app.use(helmet());
+
+// Apply Rate Limit
+const limiter = rateLimit({
+	windowMs: 60 * 60 * 1000,
+	limit: 500,
+	legacyHeaders: false,
+});
+app.use("/api", limiter);
+
+//Develeopment Logging
+if (process.env.ENV == "development") {
+	app.use(morgan("dev"));
+}
+
+// Set Pug Views Settings
 app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "/views"));
 
-app.use(express.json());
+// Body Parser
+app.use(express.json({limit:'50kb'}));
+
+// Serve Static Files
 app.use(express.static(path.join(__dirname, "public")));
-app.use(express.static(path.join(__dirname, "public/img")));
 
-// app.use((req, res, next) => {
-// 	console.log("Hello from middleware");
-// 	next();
-// });
-
-// app.use((req, res, next) => {
-// 	req.requestedAt = new Date().toISOString();
-// 	next();
-// });
 
 app.use("/", viewsRouter);
 app.use("/api/v1/tours", toursRouter);
