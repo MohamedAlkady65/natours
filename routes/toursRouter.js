@@ -4,7 +4,6 @@ const authController = require("./../controller/authController");
 const reviewsRouter = require("./reviewsRouter");
 const router = express.Router();
 
-// router.param("id", toursController.checkId);
 router.use("/:tourId/reviews", reviewsRouter);
 
 router

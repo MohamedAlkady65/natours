@@ -1,7 +1,6 @@
 const express = require("express");
 const usersController = require("./../controller/usersController");
 const authController = require("./../controller/authController");
-const factory = require("../utils/factoryHandler.js");
 
 const router = express.Router();
 
@@ -23,6 +22,12 @@ router.delete(
 	authController.deleteMe
 );
 
+router.get(
+	"/me",
+	authController.protectRoute,
+	usersController.getMe,
+	usersController.getOneUser
+);
 router
 	.route("/")
 	.get(usersController.getAllUsers)
