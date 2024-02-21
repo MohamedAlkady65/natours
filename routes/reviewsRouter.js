@@ -11,4 +11,6 @@ router
 		reviewsController.addReview
 	);
 
+router.delete("/:id", reviewsController.deleteReview);
+
 module.exports = router;

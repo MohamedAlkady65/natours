@@ -31,9 +31,4 @@ exports.updateUser = (req, res) => {
 		message: "This route is not implemented",
 	});
 };
-exports.deleteUser = (req, res) => {
-	res.status(500).json({
-		status: "error",
-		message: "This route is not implemented",
-	});
-};
+exports.deleteUser = factory.delete(User);

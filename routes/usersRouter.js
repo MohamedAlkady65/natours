@@ -1,6 +1,7 @@
 const express = require("express");
 const usersController = require("./../controller/usersController");
 const authController = require("./../controller/authController");
+const factory = require("../utils/factoryHandler.js");
 
 const router = express.Router();
 
