@@ -8,6 +8,16 @@ const { hashToken } = require("../utils/encrypt");
 const signToken = async (id) => {
 	return await jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "90d" });
 };
+const filterObj = (obj, ...allowedFields) => {
+	const newObj = {};
+
+	Object.keys(obj).forEach((e) => {
+		if (allowedFields.includes(e)) {
+			newObj[e] = obj[e];
+		}
+	});
+	return newObj;
+};
 
 const sendToken = async (res, user, sendUser = false) => {
 	const token = await signToken(user._id);
@@ -106,7 +116,7 @@ exports.restrictTo = (...roles) =>
 		next();
 	});
 
-exports.changePassword = catchAsync(async (req, res, next) => {
+exports.updatePassword = catchAsync(async (req, res, next) => {
 	const user = req.user;
 	const oldPassword = req.body.oldPassword;
 	const newPassword = req.body.newPassword;
@@ -139,6 +149,35 @@ exports.changePassword = catchAsync(async (req, res, next) => {
 	await sendToken(res, user);
 });
 
+exports.updateMe = catchAsync(async (req, res, next) => {
+	const filterdObj = filterObj(req.body, "name", "email");
+	const newUser = await User.findByIdAndUpdate(req.user.id, filterdObj, {
+		new: true,
+		runValidators: true,
+	});
+
+	res.status(200).json({
+		status: "success",
+		data: {
+			user: newUser,
+		},
+	});
+});
+exports.deleteMe = catchAsync(async (req, res, next) => {
+	await User.findByIdAndUpdate(
+		req.user.id,
+		{ active: false },
+		{
+			new: true,
+			runValidators: true,
+		}
+	);
+	res.status(204).json({
+		status: "success",
+		data: null,
+	});
+});
+
 exports.forgotPassword = catchAsync(async (req, res, next) => {
 	const email = req.body.email;
 
@@ -156,9 +195,9 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 	const resetUrl = `${req.protocol}://${req.hostname}/api/v1/users/resetPassword/${resetToken}`;
 
 	const message = `Hello ${user.name}
-To reset your password
-Please PATCH request to ${resetUrl}
-If you don't want, ignore this email`;
+	To reset your password
+	Please PATCH request to ${resetUrl}
+	If you don't want, ignore this email`;
 
 	try {
 		await sendEmail({

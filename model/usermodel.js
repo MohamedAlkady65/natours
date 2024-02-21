@@ -55,6 +55,12 @@ const userSchema = new mongoose.Schema({
 	},
 	passwordChangeTime: {
 		type: Date,
+		select: false,
+	},
+	active: {
+		type: Boolean,
+		default: true,
+		select: false,
 	},
 	forgotPasswordResetToken: String,
 	forgotPasswordResetTokenExpire: Date,
@@ -69,6 +75,10 @@ userSchema.pre("save", async function (next) {
 	await handlePassword(this);
 });
 
+userSchema.pre(/^find/, function (next) {
+	this.find({ active: { $ne: false } });
+	next();
+});
 userSchema.methods.checkPassword = async function (password, hashPassword) {
 	return await bcrypt.compare(password, hashPassword);
 };
