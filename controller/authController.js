@@ -32,13 +32,18 @@ const sendToken = async (res, user, sendUser = false) => {
 	const cookieOptions = {
 		expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
 		httpOnly: true,
+		secure: true,
 	};
 
 	if (process.env.ENV == "production") cookieOptions.secure = true;
 
-	res.cookie("jwt", token);
+	res.cookie("jwt", token, cookieOptions);
 
 	res.status(200).json(resObj);
+};
+
+const clearJwtCookie = (res) => {
+	res.clearCookie("jwt");
 };
 
 exports.signUp = catchAsync(async (req, res, next) => {
@@ -75,33 +80,93 @@ exports.signIn = catchAsync(async (req, res, next) => {
 
 	await sendToken(res, user);
 });
+exports.signOut = catchAsync(async (req, res, next) => {
+	clearJwtCookie(res);
+
+	res.status(200).json({
+		status: "success",
+		message: "Logged Out Successfully",
+	});
+});
 
 exports.protectRoute = catchAsync(async (req, res, next) => {
 	// Check Token Exists
-	const auth = req.headers.authorization;
+	let token;
 
-	if (!auth || !auth.startsWith("Bearer")) {
-		next(new AppError("No token found, Please log in and try again", 401));
+	const auth = req.headers.authorization;
+	if (auth && auth.startsWith("Bearer")) {
+		token = auth.split(" ")[1];
+	} else if (req.cookies.jwt) {
+		token = req.cookies.jwt;
+	} else {
+		clearJwtCookie(res);
+		return next(
+			new AppError("No token found, Please log in and try again", 401)
+		);
 	}
 
 	// Token verfication
-	const token = auth.split(" ")[1];
-	const payload = jwt.verify(token, process.env.JWT_SECRET);
+	let payload;
+	try {
+		payload = jwt.verify(token, process.env.JWT_SECRET);
+	} catch (error) {
+		clearJwtCookie(res);
+		throw error;
+	}
 
 	// Check user exists
 	const currentUser = await User.findById(payload.id).select("+password");
 	if (!currentUser) {
+		clearJwtCookie(res);
 		return next(new AppError("Invalid Token, User is not exists", 401));
 	}
 
 	// Check password not changed
 	const changed = currentUser.checkPasswordChanged(payload.iat);
 	if (changed) {
+		clearJwtCookie(res);
 		return next(
 			new AppError("Invalid Token, Password has been changed", 401)
 		);
 	}
 	req.user = currentUser;
+	next();
+});
+exports.isLoggedIn = catchAsync(async (req, res, next) => {
+	// Check Token Exists
+	let token;
+
+	if (req.cookies.jwt) {
+		token = req.cookies.jwt;
+	} else {
+		clearJwtCookie(res);
+		return next();
+	}
+
+	// Token verfication
+	let payload;
+	try {
+		payload = jwt.verify(token, process.env.JWT_SECRET);
+	} catch (error) {
+		clearJwtCookie(res);
+		return next();
+	}
+
+	// Check user exists
+	const currentUser = await User.findById(payload.id).select("+password");
+	if (!currentUser) {
+		clearJwtCookie(res);
+		return next();
+	}
+
+	// Check password not changed
+	const changed = currentUser.checkPasswordChanged(payload.iat);
+	if (changed) {
+		clearJwtCookie(res);
+		return next();
+	}
+
+	res.locals.user = currentUser;
 	next();
 });
 

@@ -9,6 +9,7 @@ const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
 const hpp = require("hpp");
+const cookieParser = require("cookie-parser");
 
 dotenv.config({ path: "./config.env" });
 const toursRouter = require("./routes/toursRouter");
@@ -53,8 +54,9 @@ if (process.env.ENV == "development") {
 app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "/views"));
 
-// Body Parser
+// Body, Cookie Parser
 app.use(express.json({ limit: "50kb" }));
+app.use(cookieParser());
 
 // Mongo Sanitize
 app.use(mongoSanitize());
