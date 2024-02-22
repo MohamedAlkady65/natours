@@ -1,11 +1,11 @@
 doctype html
 html
-    head 
-        //- interoplation
-        title Natours | #{title}
-        
-        link(rel='stylesheet' type='text/css' href='/css/style.css')
-        link(rel='icon' type='image/png' href='/img/favicon1.png')
+    block head
+        head 
+            //- interoplation
+            title Natours | #{title}
+            link(rel='stylesheet' type='text/css' href='/css/style.css')
+            link(rel='icon' type='image/png' href='/img/favicon1.png')
     body 
 
     include _header

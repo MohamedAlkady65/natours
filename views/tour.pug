@@ -20,6 +20,7 @@ mixin reviewCard(review)
 								use(xlink:href='/img/icons.svg#icon-star',class=`reviews__star--${review.rating>=star ? 'active':"inactive"}`)
 
 
+block append head
 
 
 block content 
@@ -79,7 +80,7 @@ block content
 
 
 	section.section-map
-		#map
+		#map(data-locations= `${JSON.stringify(tour.locations)}`)
 
 	section.section-reviews
 		.reviews
@@ -98,3 +99,5 @@ block content
 				h2.heading-secondary What are you waiting for?
 				p.cta__text= `${tour.duration} days. 1 adventure. Infinite memories. Make it yours today!` 
 				button.btn.btn--green.span-all-rows Book tour now!
+
+	script(src='/js/mapBox.js')
