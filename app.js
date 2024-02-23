@@ -87,7 +87,14 @@ app.use("/api/v1/users", usersRouter);
 app.use("/api/v1/reviews", reviewsRouter);
 
 app.all("*", (req, res, next) => {
-	next(new AppError(`Route ${req.originalUrl} not found`, 404));
+	next(
+		new AppError(
+			`Route ${req.originalUrl} not found`,
+			404,
+			undefined,
+			false
+		)
+	);
 });
 
 app.use(globalErrorHandler);

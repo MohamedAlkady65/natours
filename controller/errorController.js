@@ -11,6 +11,7 @@ const sendErrorDevApi = (err, res) => {
 	});
 };
 const sendErrorProdApi = (err, res) => {
+	console.log(err);
 	if (err.isOperational) {
 		res.status(err.statusCode).json({
 			status: err.status,
@@ -47,12 +48,17 @@ const sendErrorProdWebsite = (err, res) => {
 	}
 };
 const sendErrorWebsite = (err, res) => {
-	console.log(err);
-
 	if (process.env.ENV == "development") {
 		sendErrorDevWebsite(err, res);
 	} else if (process.env.ENV == "production") {
 		sendErrorProdWebsite(err, res);
+	}
+};
+const sendErrorApi = (err, res) => {
+	if (process.env.ENV == "development") {
+		sendErrorDevApi(err, res);
+	} else if (process.env.ENV == "production") {
+		sendErrorProdApi(err, res);
 	}
 };
 
