@@ -32,6 +32,9 @@ const sendErrorDevWebsite = (err, res) => {
 };
 const sendErrorProdWebsite = (err, res) => {
 	if (err.isOperational) {
+		if (err.statusCode == 401) {
+			return res.redirect("/");
+		}
 		res.status(err.statusCode).render("error", {
 			title: "Error",
 			msg: err.message,
@@ -44,6 +47,8 @@ const sendErrorProdWebsite = (err, res) => {
 	}
 };
 const sendErrorWebsite = (err, res) => {
+	console.log(err);
+
 	if (process.env.ENV == "development") {
 		sendErrorDevWebsite(err, res);
 	} else if (process.env.ENV == "production") {
