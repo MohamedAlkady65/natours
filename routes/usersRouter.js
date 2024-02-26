@@ -15,12 +15,12 @@ router.use(authController.protectRoute);
 
 router.patch("/updatePassword", authController.updatePassword);
 
-router.patch("/updateMe", authController.protectRoute, authController.updateMe);
+router.patch("/updateMe", authController.protectRoute, usersController.updateMe);
 
 router.delete(
 	"/deleteMe",
 	authController.protectRoute,
-	authController.deleteMe
+	usersController.deleteMe
 );
 
 router.get(

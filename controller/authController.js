@@ -215,33 +215,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 	await sendToken(res, user);
 });
 
-exports.updateMe = catchAsync(async (req, res, next) => {
-	const filterdObj = filterObj(req.body, "name", "email");
-	const newUser = await User.findByIdAndUpdate(req.user.id, filterdObj, {
-		new: true,
-		runValidators: true,
-	});
-	res.status(200).json({
-		status: "success",
-		data: {
-			user: newUser,
-		},
-	});
-});
-exports.deleteMe = catchAsync(async (req, res, next) => {
-	await User.findByIdAndUpdate(
-		req.user.id,
-		{ active: false },
-		{
-			new: true,
-			runValidators: true,
-		}
-	);
-	res.status(204).json({
-		status: "success",
-		data: null,
-	});
-});
+
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
 	const email = req.body.email;
