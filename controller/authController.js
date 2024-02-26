@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../model/usermodel.js");
 const AppError = require("../utils/appError.js");
 const catchAsync = require("../utils/catchAsync.js");
-const { sendEmail } = require("../utils/email.js");
+const Email = require("../utils/email.js");
 const { hashToken } = require("../utils/encrypt");
 
 const signToken = async (id) => {
@@ -57,6 +57,11 @@ exports.signUp = catchAsync(async (req, res, next) => {
 
 	const userObj = newUser.toObject();
 	delete userObj.password;
+
+	await new Email(
+		userObj,
+		`${req.protocol}://${req.get("host")}/account`
+	).sendWelcome();
 
 	await sendToken(res, userObj, true);
 });
@@ -215,8 +220,6 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 	await sendToken(res, user);
 });
 
-
-
 exports.forgotPassword = catchAsync(async (req, res, next) => {
 	const email = req.body.email;
 
@@ -231,19 +234,10 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 	}
 
 	const resetToken = await user.getForgotPasswordResetToken();
-	const resetUrl = `${req.protocol}://${req.hostname}/api/v1/users/resetPassword/${resetToken}`;
-
-	const message = `Hello ${user.name}
-	To reset your password
-	Please PATCH request to ${resetUrl}
-	If you don't want, ignore this email`;
 
 	try {
-		await sendEmail({
-			email,
-			subject: "Your password reset link (valid for 10 minutes)",
-			text: message,
-		});
+		const resetUrl = `${req.protocol}://${req.hostname}/api/v1/users/resetPassword/${resetToken}`;
+		await new Email(user, resetUrl).sendResetPassword();
 
 		res.status(200).json({
 			status: "success",
@@ -254,6 +248,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 		user.forgotPasswordResetTokenExpire = undefined;
 		await user.save({ validateBeforeSave: false });
 
+		return next(new AppError(error, 500));
 		return next(
 			new AppError("Cannot send email now, please try again later", 500)
 		);
