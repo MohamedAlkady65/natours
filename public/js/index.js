@@ -1,11 +1,12 @@
 import { updatePassword, updateUser } from "./account";
 import { login, logout } from "./login";
-
+import { bookTour } from "./stripe";
 const loginForm = document.querySelector(".form--login");
 const logoutBtn = document.querySelector(".nav__el--logout");
 const userDataForm = document.querySelector(".form-user-data");
 const userSettingsForm = document.querySelector(".form-user-settings");
 const map = document.getElementById("map");
+const bookTourBtn = document.getElementById("book-tour-btn");
 
 if (map) {
 	const locations = JSON.parse(map.dataset.locations);
@@ -43,5 +44,14 @@ if (userSettingsForm) {
 			document.getElementById("password-confirm").value;
 
 		await updatePassword(oldPassword, newPassword, confirmNewPassword);
+	});
+}
+
+if (bookTourBtn) {
+	bookTourBtn.addEventListener("click", async (e) => {
+		const oldContent = e.target.textContent;
+		e.target.textContent = "Processing...";
+		await bookTour(e.target.dataset.tourid);
+		e.target.textContent = oldContent;
 	});
 }
