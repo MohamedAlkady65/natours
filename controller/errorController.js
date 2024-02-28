@@ -11,7 +11,6 @@ const sendErrorDevApi = (err, res) => {
 	});
 };
 const sendErrorProdApi = (err, res) => {
-	console.log(err);
 	if (err.isOperational) {
 		res.status(err.statusCode).json({
 			status: err.status,
@@ -19,6 +18,7 @@ const sendErrorProdApi = (err, res) => {
 			errors: err.errors,
 		});
 	} else {
+		console.log(err);
 		res.status(500).json({
 			status: "Error",
 			message: "Server Error, Something went wrong",
@@ -41,6 +41,7 @@ const sendErrorProdWebsite = (err, res) => {
 			msg: err.message,
 		});
 	} else {
+		console.log(err);
 		res.status(err.statusCode).render("error", {
 			title: "Error",
 			msg: "Server Error, Something went wrong",

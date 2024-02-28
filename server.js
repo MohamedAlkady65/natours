@@ -20,3 +20,15 @@ process.on("unhandledRejection", (err) => {
 		process.exit(1);
 	});
 });
+
+process.on("unhandledException", (err) => {
+	
+	console.log("Unhandled Exception 💥💥💥");
+
+	console.log(err.name, err.message);
+
+	server.close(() => {
+		console.log("Shutting down ....");
+		process.exit(1);
+	});
+});

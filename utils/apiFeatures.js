@@ -19,7 +19,6 @@ class APIFeatures {
 
 		const filter = JSON.parse(queryStr);
 
-		console.log(filter);
 
 		this.query.find(filter);
 		return this;

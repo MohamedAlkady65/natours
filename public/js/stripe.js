@@ -9,7 +9,7 @@ export const bookTour = async (tourId) => {
 	try {
 		const res = await axios({
 			method: "GET",
-			url: `http://127.0.0.1:3000/api/v1/booking/checkOut/${tourId}`,
+			url: `/api/v1/booking/checkOut/${tourId}`,
 		});
 		if (res.data.status === "success") {
 			await stripe.redirectToCheckout({ sessionId: res.data.session.id });
@@ -17,7 +17,6 @@ export const bookTour = async (tourId) => {
 			showAlert("error", "Something Went Wrong");
 		}
 	} catch (error) {
-		console.log(error);
-		// showAlert("error", error.response.data.message);
+		showAlert("error", error.response.data.message);
 	}
 };

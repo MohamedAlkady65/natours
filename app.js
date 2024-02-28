@@ -10,6 +10,7 @@ const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
 const hpp = require("hpp");
 const cookieParser = require("cookie-parser");
+const compression = require("compression");
 
 dotenv.config({ path: "./config.env" });
 const toursRouter = require("./routes/toursRouter");
@@ -81,6 +82,8 @@ app.use(
 
 // Serve Static Files
 app.use(express.static(path.join(__dirname, "public")));
+
+app.use(compression());
 
 app.use("/", viewsRouter);
 app.use("/api/v1/tours", toursRouter);

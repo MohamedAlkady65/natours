@@ -13,8 +13,6 @@ exports.checkOut = catchAsync(async (req, res, next) => {
 		return next(new AppError("Tour not found", 404));
 	}
 
-	console.log(tour.price);
-	console.log(tour._id);
 
 	const price = await stripe.prices.create({
 		currency: "usd",
@@ -50,10 +48,8 @@ exports.checkOut = catchAsync(async (req, res, next) => {
 });
 
 exports.createBookingcheckOut = catchAsync(async (req, res, next) => {
-	console.log(req.originalUrl);
 	const { tour, user, price } = req.query;
 
-	console.log({ tour, user, price });
 
 	if (!tour || !user || !price) return next();
 
