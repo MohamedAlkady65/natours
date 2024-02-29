@@ -183,7 +183,6 @@ exports.restrictTo = (...roles) =>
 				new AppError("Forbidden, You have not permission", 403)
 			);
 		}
-
 		next();
 	});
 
