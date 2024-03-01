@@ -11,6 +11,7 @@ const xss = require("xss-clean");
 const hpp = require("hpp");
 const cookieParser = require("cookie-parser");
 const compression = require("compression");
+const cors = require("cors");
 
 dotenv.config({ path: "./config.env" });
 const toursRouter = require("./routes/toursRouter");
@@ -22,6 +23,11 @@ const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controller/errorController");
 
 const app = express();
+
+app.use(cors());
+app.options("*", cors());
+
+app.enable("trust proxy");
 
 const connectionString = process.env.DATABASE.replace(
 	"<PASSWORD>",

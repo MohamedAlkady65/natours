@@ -19,7 +19,7 @@ const filterObj = (obj, ...allowedFields) => {
 	return newObj;
 };
 
-const sendToken = async (res, user, sendUser = false) => {
+const sendToken = async (req, res, user, sendUser = false) => {
 	const token = await signToken(user._id);
 
 	const resObj = {
@@ -32,10 +32,8 @@ const sendToken = async (res, user, sendUser = false) => {
 	const cookieOptions = {
 		expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
 		httpOnly: true,
-		secure: true,
+		secure: req.secure || req.headers("x-forwarded-proto") === "https",
 	};
-
-	if (process.env.ENV == "production") cookieOptions.secure = true;
 
 	res.cookie("jwt", token, cookieOptions);
 
@@ -63,7 +61,7 @@ exports.signUp = catchAsync(async (req, res, next) => {
 		`${req.protocol}://${req.get("host")}/account`
 	).sendWelcome();
 
-	await sendToken(res, userObj, true);
+	await sendToken(req, res, userObj, true);
 });
 
 exports.signIn = catchAsync(async (req, res, next) => {
@@ -83,7 +81,7 @@ exports.signIn = catchAsync(async (req, res, next) => {
 		return next(new AppError("Email or password is incorrect", 401));
 	}
 
-	await sendToken(res, user);
+	await sendToken(req, res, user);
 });
 exports.signOut = catchAsync(async (req, res, next) => {
 	clearJwtCookie(res);
@@ -216,7 +214,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 	user.passwordChangeTime = new Date().getTime();
 	await user.save();
 
-	await sendToken(res, user);
+	await sendToken(req, res, user);
 });
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
