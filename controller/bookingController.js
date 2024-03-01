@@ -4,6 +4,7 @@ const AppError = require("../utils/appError.js");
 const catchAsync = require("../utils/catchAsync.js");
 const Tour = require("./../model/tourModel.js");
 const factory = require("../utils/factoryHandler.js");
+const User = require("../model/usermodel.js");
 
 exports.checkOut = catchAsync(async (req, res, next) => {
 	const tourId = req.params.tourId;
