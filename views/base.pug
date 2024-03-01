@@ -8,7 +8,7 @@ html
             link(rel='icon' type='image/png' href='/img/favicon1.png')
             script(src='https://js.stripe.com/v3/')
 
-    body 
+    body(data-alert=`${alert ? alert : ''}`)
 
     include _header
 

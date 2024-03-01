@@ -13,7 +13,6 @@ exports.checkOut = catchAsync(async (req, res, next) => {
 		return next(new AppError("Tour not found", 404));
 	}
 
-
 	const price = await stripe.prices.create({
 		currency: "usd",
 		unit_amount: tour.price * 100,
@@ -25,10 +24,10 @@ exports.checkOut = catchAsync(async (req, res, next) => {
 
 	const session = await stripe.checkout.sessions.create({
 		payment_method_types: ["card"],
-		success_url: `${req.protocol}://${req.get("host")}/tours/${
-			tour.slug
-		}/?tour=${tour._id}&user=${req.user._id}&price=${tour.price}`,
-		cancel_url: `${req.protocol}://${req.get("host")}/`,
+		success_url: `${req.protocol}://${req.get(
+			"host"
+		)}/my-tours?alert=booking`,
+		cancel_url: `${req.protocol}://${req.get("host")}/tour/${tour.slug}`,
 		client_reference_id: tourId,
 		currency: "usd",
 		customer_email: req.user.email,
@@ -47,16 +46,33 @@ exports.checkOut = catchAsync(async (req, res, next) => {
 	});
 });
 
-exports.createBookingcheckOut = catchAsync(async (req, res, next) => {
-	const { tour, user, price } = req.query;
-
-
-	if (!tour || !user || !price) return next();
-
+const createBookingCheckout = async (session) => {
+	const tour = session.client_reference_id;
+	const user = (await User.findOne({ email: session.customer_email })).id;
+	const price = session.display_items[0].amount / 100;
 	await Booking.create({ tour, user, price });
+};
 
-	res.redirect(req.originalUrl.split("?")[0]);
-});
+exports.webhookCheckout = async (req, res, next) => {
+	const signature = req.headers["stripe-signature"];
+
+	let event;
+	try {
+		event = stripe.webhooks.constructEvent(
+			req.body,
+			signature,
+			process.env.STRIPE_WEBHOOK_SECRET
+		);
+	} catch (err) {
+		return res.status(400).send(`Webhook error: ${err.message}`);
+	}
+
+	if (event.type === "checkout.session.completed")
+		await createBookingCheckout(event.data.object);
+
+	res.status(200).json({ received: true });
+};
+
 exports.getMyTours = catchAsync(async (req, res, next) => {
 	const bookings = await Booking.find({ user: req.user.id });
 

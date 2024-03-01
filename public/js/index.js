@@ -1,4 +1,5 @@
 import { updatePassword, updateUser } from "./account";
+import { showAlert } from "./alerts";
 import { login, logout } from "./login";
 import { bookTour } from "./stripe";
 const loginForm = document.querySelector(".form--login");
@@ -55,3 +56,6 @@ if (bookTourBtn) {
 		e.target.textContent = oldContent;
 	});
 }
+
+const alertMessage = document.querySelector("body").dataset.alert;
+if (alertMessage) showAlert("success", alertMessage, 15);

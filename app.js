@@ -21,6 +21,7 @@ const viewsRouter = require("./routes/viewsRouter");
 const bookingRouter = require("./routes/bookingRouter");
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controller/errorController");
+const bookingController = require("./controller/bookingController");
 
 const app = express();
 
@@ -53,6 +54,11 @@ const limiter = rateLimit({
 });
 app.use("/api", limiter);
 
+app.post(
+	"/webhook-checkout",
+	express.raw({ type: "application/json" }),
+	bookingController.webhookCheckout
+);
 //Develeopment Logging
 if (process.env.ENV == "development") {
 	app.use(morgan("dev"));

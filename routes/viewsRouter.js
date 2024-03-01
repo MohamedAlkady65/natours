@@ -4,11 +4,12 @@ const authController = require("../controller/authController");
 const bookingController = require("../controller/bookingController");
 const router = express.Router();
 
+router.use(viewsController.alerts);
+
 router.get("/account", authController.protectRoute, viewsController.account);
 
 router.get(
 	"/",
-	bookingController.createBookingcheckOut,
 	authController.isLoggedIn,
 	viewsController.getOverview
 );
